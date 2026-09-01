@@ -150,3 +150,21 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   persistence property the site does not have; config-dependent claims are phrased
   as requirements on the build step; the matrix gained the missing rows and the
   exit criteria now cover all planned tests.
+
+## 2026-09-01 — discovery doc contained a selector that was never actually observed
+
+- What was produced: the saucedemo discovery doc's §3 prose claimed the product
+  detail page has "a single generic `#add-to-cart` / `#remove` button". The
+  `#remove` half was written from inference — during the original session the broken
+  click meant the button never flipped, so a `#remove` query returned null and the
+  element was never seen. The selector table (correctly) omitted it, but the prose
+  asserted it.
+- Why it was wrong: it violated the step-4 rule that every recorded selector must
+  have been observed; right or wrong, it was a guess presented as observation.
+- How it was caught: while building ProductDetailPage in step 7 — CLAUDE.md forbids
+  committing unverified selectors, and re-reading the session evidence showed the
+  claim had none.
+- What the fix was: a 30-second MCP re-verification (add Backpack on the detail
+  page, read the button's attributes: `data-test="remove"`, `id="remove"`, text
+  "Remove", then remove it again and log out). The selector table now carries the
+  verified row and this entry; the page object gets the selector legitimately.
