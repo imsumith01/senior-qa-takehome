@@ -15,4 +15,13 @@ Entry format:
 - What the fix was:
 ```
 
-No entries yet — the first step only established the repository rules.
+## 2026-09-01 — commit message temp file at a path git could not read
+
+- What was produced: the step-1 commit message was written to the session scratchpad, a
+  temp directory nested roughly 260 characters deep on Windows.
+- Why it was wrong: `git commit -F` failed with `fatal: could not read log file ...
+  Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceeds.
+- How it was caught: the commit command exited with code 128 on the first attempt.
+- What the fix was: copy the message to `.git/COMMIT_MSG.txt` (short path, never
+  tracked) and commit from there. That location is the standing pattern for all future
+  commits in this repo.
