@@ -192,3 +192,28 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   title, relabelled the journey test to strict Act/Assert sections, corrected the
   plan's "IDs appear in test titles" claim to match reality (IDs live in comments),
   and added visual_user as the third broken account KNOWN_DEFECTS had understated.
+
+## 2026-09-01 — the API fixture design caused the very flake the validation hunt found
+
+- What was produced: API fixtures built on Playwright's built-in per-test `request`
+  fixture — a fresh APIRequestContext, and therefore fresh TLS connections, for
+  every one of 28 API tests, with no request-level timeout below the 30 s test
+  budget.
+- Why it was wrong: under the validation step's `--repeat-each=5` bursts (325
+  executions), hundreds of new connections to one host in a minute got tarpitted by
+  the service's edge — 1–2 hangs per burst, always on the largest collection GETs —
+  and each hang died as a blank "Test timeout of 30000ms exceeded" that named
+  nothing. Reducing workers did not help (burst 3: still 2 hangs at the CI
+  profile), which killed the "too much parallelism" hypothesis and pointed at
+  connection churn.
+- How it was caught: the flake hunt itself, run four times with one variable changed
+  at a time, plus a 10× reproduction attempt that isolated the failure to fresh
+  connections.
+- What the fix was: architectural, with no retry and no timeout bump — one request
+  context per worker (connection reuse; the API is stateless so isolation is
+  intact) plus a 15 s per-request timeout so any residual hang fails fast naming
+  its URL. Result: 325/325 at the original concurrency, and the suite got nearly
+  2× faster (22.9 s → 12.1 s) as a side effect. Lesson: fixture scope is a load-
+  profile decision, not a convenience default — and a flake hunt that varies one
+  factor per run is what separates "the network is flaky" from a fixable design
+  choice.
