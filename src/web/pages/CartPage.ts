@@ -8,6 +8,7 @@ export class CartPage {
   readonly cartItems: Locator;
   readonly itemQuantities: Locator;
   readonly itemNames: Locator;
+  readonly itemDescriptions: Locator;
   readonly itemPrices: Locator;
   readonly continueShoppingButton: Locator;
   readonly checkoutButton: Locator;
@@ -18,6 +19,7 @@ export class CartPage {
     this.cartItems = page.locator('.cart_item');
     this.itemQuantities = page.locator('[data-test="item-quantity"]');
     this.itemNames = page.locator('[data-test="inventory-item-name"]');
+    this.itemDescriptions = page.locator('[data-test="inventory-item-desc"]');
     this.itemPrices = page.locator('[data-test="inventory-item-price"]');
     this.continueShoppingButton = page.locator('[data-test="continue-shopping"]');
     this.checkoutButton = page.locator('[data-test="checkout"]');
@@ -41,9 +43,5 @@ export class CartPage {
 
   async continueShopping(): Promise<void> {
     await this.continueShoppingButton.click();
-  }
-
-  async namesOfItemsInCart(): Promise<string[]> {
-    return this.itemNames.allTextContents();
   }
 }

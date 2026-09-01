@@ -69,12 +69,4 @@ export class InventoryPage {
   async openCart(): Promise<void> {
     await this.shoppingCartLink.click();
   }
-
-  async visibleProductNames(): Promise<string[]> {
-    return this.productNames.allTextContents();
-  }
-
-  async visibleProductPrices(): Promise<string[]> {
-    return this.productPrices.allTextContents();
-  }
 }

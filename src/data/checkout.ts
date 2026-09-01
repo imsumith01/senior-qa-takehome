@@ -1,7 +1,27 @@
+import type { Product } from './products';
+
 export interface CheckoutDetails {
   firstName: string;
   lastName: string;
   postalCode: string;
+}
+
+export function roundToCents(amount: number): number {
+  return Math.round(amount * 100) / 100;
+}
+
+export function itemTotalInDollarsFor(basket: Product[]): number {
+  let total = 0;
+  for (const product of basket) {
+    total += product.priceInDollars;
+  }
+  return roundToCents(total);
+}
+
+// Matches all observed baskets: 8% of the item total, rounded to the cent
+// (discovery §8 — half-up vs ceiling is indistinguishable on this catalogue).
+export function taxInDollarsFor(itemTotalInDollars: number): number {
+  return roundToCents(itemTotalInDollars * SALES_TAX_RATE);
 }
 
 // Confirmed against three observed baskets; see

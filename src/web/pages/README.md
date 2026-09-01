@@ -24,9 +24,11 @@ How the page objects in this folder work, and how to add one.
   selector from the product's recorded `dataTestSlug`.
 - **Methods are named after user intent** (`logInAs`, `sortProductsBy`,
   `beginCheckout`), not mechanics. A method does one user-visible thing.
-- **No assertions in page objects.** They describe what is on the page and how to act
-  on it; tests decide what is correct. Reader methods (like
-  `displayedTaxInDollars()`) return values for tests to assert on.
+- **No assertions in page objects, and no value-reader methods either.** They
+  describe what is on the page and how to act on it; tests assert web-first against
+  the exposed locators (`expect(locator).toHaveText(...)`). A method that returns
+  page text for a plain `expect(value)` would be an escape hatch from the web-first
+  rule, so none exist.
 - **No waits.** Playwright locators auto-wait on interaction; anything beyond that is
   the test's decision via `expect`.
 

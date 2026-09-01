@@ -34,23 +34,4 @@ export class CheckoutOverviewPage {
   async cancel(): Promise<void> {
     await this.cancelButton.click();
   }
-
-  // The labels render as e.g. "Tax: $3.20"; these readers return the numeric part so
-  // tests can compare against computed expectations.
-  async displayedItemTotalInDollars(): Promise<number> {
-    return this.dollarsFrom(this.itemTotalLabel, 'Item total: $');
-  }
-
-  async displayedTaxInDollars(): Promise<number> {
-    return this.dollarsFrom(this.taxLabel, 'Tax: $');
-  }
-
-  async displayedGrandTotalInDollars(): Promise<number> {
-    return this.dollarsFrom(this.totalLabel, 'Total: $');
-  }
-
-  private async dollarsFrom(label: Locator, expectedPrefix: string): Promise<number> {
-    const labelText = await label.innerText();
-    return Number(labelText.replace(expectedPrefix, ''));
-  }
 }

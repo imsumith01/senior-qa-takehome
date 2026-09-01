@@ -31,3 +31,19 @@ export const REMOVE_BUTTON_LABEL = 'Remove';
 export function loggedOutAccessErrorFor(path: string): string {
   return `Epic sadface: You can only access '${path}' when you are logged in.`;
 }
+
+// The checkout overview renders money as e.g. "Item total: $39.98".
+export function itemTotalLabelFor(amountInDollars: number): string {
+  return `Item total: $${amountInDollars.toFixed(2)}`;
+}
+
+export function taxLabelFor(amountInDollars: number): string {
+  return `Tax: $${amountInDollars.toFixed(2)}`;
+}
+
+export function grandTotalLabelFor(amountInDollars: number): string {
+  return `Total: $${amountInDollars.toFixed(2)}`;
+}
+
+// With an empty cart the subtotal uniquely drops its decimals (discovery §10.16).
+export const EMPTY_CART_ITEM_TOTAL_TEXT = 'Item total: $0';
