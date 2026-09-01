@@ -10,6 +10,9 @@ playwright/.cache/
 # Local environment
 .env
 
+# Playwright MCP session artifacts (snapshots, console logs from exploration)
+.playwright-mcp/
+
 # OS junk
 .DS_Store
 Thumbs.db

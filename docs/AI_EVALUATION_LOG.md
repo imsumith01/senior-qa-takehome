@@ -59,3 +59,53 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
 - How it was caught: the first `npm run typecheck` failed before checking any file.
 - What the fix was: `"module": "preserve", "moduleResolution": "bundler"`, which also
   matches how Playwright's esbuild pipeline actually resolves test imports.
+
+## 2026-09-01 — assumed MCP clicks are equivalent to user clicks; they were not delivered at all
+
+- What was produced: discovery-step interactions driven by the MCP `browser_click`
+  tool, on the assumption they behave like real user clicks.
+- Why it was wrong: in this session most post-login clicks never reached the page. An
+  instrumented `document.addEventListener` capture recorded zero
+  pointerdown/mousedown/mouseup/click events across several clicks that the tool
+  reported as successful, in two separate browser sessions; one login-page click also
+  dropped. `element.click()` via `page.evaluate` worked every time.
+- How it was caught: an Add to cart click produced no badge, no localStorage change,
+  and an empty event log; `document.elementFromPoint` ruled out an overlay first.
+- What the fix was: drive exploration through DOM-level clicks (React does not care
+  about event trust), record the quirk prominently in the discovery doc, and treat
+  "trusted clicks work" as unverified until the real `@playwright/test` suite proves
+  it in a normal environment.
+
+## 2026-09-01 — nearly recorded a false site behaviour from one flaky observation
+
+- What was produced: an observation that checkout step one accepted an empty Last
+  Name for standard_user (submit navigated to step two), on track to be written up as
+  "Last Name is not validated".
+- Why it was wrong: the earlier `fill('')` event had been dropped by the same
+  unreliable input channel, so React state still held the previous value while the
+  DOM read back empty. The validation exists and blocks correctly.
+- How it was caught: re-ran the case from a clean page, read all three field values
+  back immediately before submitting, and got the verbatim
+  `Error: Last Name is required`. A follow-up probe confirmed fill events are
+  delivered only intermittently.
+- What the fix was: for every validation case, assert the observed input state before
+  acting on the outcome; the discovery doc documents only re-verified results and
+  flags the artefact explicitly (it matters because error_user's Last Name field is
+  genuinely broken in a way that looks identical at first glance).
+
+## 2026-09-01 — two broken attempts at measuring the performance_glitch_user delay
+
+- What was produced: first, a login-duration measurement using
+  `performance.getEntriesByType('navigation')` on the inventory page (107 ms — no
+  glitch visible); second, a click-epoch-in-localStorage scheme compared against the
+  next page's `performance.timeOrigin`.
+- Why it was wrong: the post-login inventory page was restored from the back/forward
+  cache, so the navigation entry described a load from a minute earlier — the second
+  scheme returned a negative delay (−55 s), which exposed the first one as garbage
+  too. The glitch happens before navigation starts, where document timing never sees
+  it.
+- How it was caught: the −55 s number was impossible on its face.
+- What the fix was: wall-clock timing around `waitForURL` in the Playwright server
+  process, with an identical standard_user control run: 5019 ms vs 21 ms. Lesson for
+  the test suite: assert on user-perceived latency (click → page usable), never on
+  navigation timing APIs, and always run a control.
