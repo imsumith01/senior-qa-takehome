@@ -41,3 +41,9 @@ export const CORS_PROBE_ORIGIN = 'https://example.com';
 // latency assertions in general (network path, not app), so this is set generously
 // enough that only a stuck network or a dying service trips it.
 export const SMOKE_RESPONSE_TIME_LIMIT_MS = 5000;
+
+// Per-request timeout, deliberately half the 30 s test budget: a hung request then
+// fails as "request timed out" naming its URL instead of eating the whole test and
+// dying as an unexplained test timeout. Added after the framework-validation flake
+// hunt caught exactly that failure mode (docs/FRAMEWORK_VALIDATION.md).
+export const API_REQUEST_TIMEOUT_MS = 15000;
