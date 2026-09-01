@@ -109,3 +109,18 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   process, with an identical standard_user control run: 5019 ms vs 21 ms. Lesson for
   the test suite: assert on user-perceived latency (click → page usable), never on
   navigation timing APIs, and always run a control.
+
+## 2026-09-01 — discovery script nearly produced a false "no Location header" claim
+
+- What was produced: the jsonplaceholder scratch script reported
+  `headers: { location: null }` for POST — a hardcoded placeholder, because
+  `location` was missing from the list of headers the script actually read.
+- Why it was wrong: the report made it look observed-and-absent when it was simply
+  never captured. The response's own `access-control-expose-headers: Location` hinted
+  the opposite.
+- How it was caught: noticed the mismatch between the placeholder and the
+  expose-headers value while analysing the report, before writing the doc.
+- What the fix was: a follow-up probe that read the header directly — POST does set
+  `Location: https://jsonplaceholder.typicode.com/posts/101` (pointing at a URL that
+  404s, now documented). Lesson: a claim that something is absent needs
+  instrumentation that could have seen it present.
