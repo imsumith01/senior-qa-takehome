@@ -124,3 +124,29 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   `Location: https://jsonplaceholder.typicode.com/posts/101` (pointing at a URL that
   404s, now documented). Lesson: a claim that something is absent needs
   instrumentation that could have seen it present.
+
+## 2026-09-01 — first draft of the test plan failed its own cross-check on 13 points
+
+- What was produced: a draft docs/TEST_PLAN.md that read well but contained real
+  defects: §4 claimed "neither target persists anything a test writes" while the web
+  discovery doc (and the plan's own §5 and WEB-017) document SauceDemo's cart
+  surviving logout; WEB-022 existed in the inventory but nowhere in the traceability
+  matrix; §5's "every test logs in via a fixture" contradicted the seven login-page
+  tests that never complete a login; four risk-table priorities disagreed with the
+  inventory; §6 stated fullyParallel and a CI worker cap as facts that exist in no
+  config file yet; the exit criteria gave non-pin P2 tests no pass condition; plus
+  smaller drift (truncated "verbatim" quotes, "all five error messages" vs four
+  distinct strings, WEB-025 describing error_user's loud failure as silent, scope
+  rationales asserting unobserved facts about viewports/browsers/Cloudflare, and an
+  uncovered All Items menu link missing from the matrix).
+- Why it was wrong: the plan was written top-down from memory of the discovery docs
+  in one pass; consistency between its own eight sections was assumed, not checked.
+- How it was caught: a deliberate pre-commit cross-check pass against both discovery
+  documents, checking every factual claim, every ID in both directions, and the
+  plan's own arithmetic. All 13 findings were verified against discovery text before
+  fixing.
+- What the fix was: all 13 corrected before the commit — the non-persistence claim
+  now attributes web isolation to per-test browser contexts rather than to a
+  persistence property the site does not have; config-dependent claims are phrased
+  as requirements on the build step; the matrix gained the missing rows and the
+  exit criteria now cover all planned tests.
