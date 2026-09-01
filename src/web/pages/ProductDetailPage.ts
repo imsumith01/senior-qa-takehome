@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Product } from '../../data/products';
+import { productDetailRouteFor } from '../../data/routes';
 
 export class ProductDetailPage {
   readonly page: Page;
@@ -10,6 +11,7 @@ export class ProductDetailPage {
   readonly addToCartButton: Locator;
   readonly removeButton: Locator;
   readonly backToProductsButton: Locator;
+  readonly shoppingCartBadge: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,10 +21,11 @@ export class ProductDetailPage {
     this.addToCartButton = page.locator('[data-test="add-to-cart"]');
     this.removeButton = page.locator('[data-test="remove"]');
     this.backToProductsButton = page.locator('[data-test="back-to-products"]');
+    this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]');
   }
 
   async openForProduct(product: Product): Promise<void> {
-    await this.page.goto(`/inventory-item.html?id=${product.id}`);
+    await this.page.goto(productDetailRouteFor(product.id));
   }
 
   async addToCart(): Promise<void> {

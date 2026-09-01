@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Credentials } from '../../data/users';
+import { ROUTE_LOGIN } from '../../data/routes';
 
 export class LoginPage {
   readonly page: Page;
@@ -23,7 +24,7 @@ export class LoginPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto('/');
+    await this.page.goto(ROUTE_LOGIN);
   }
 
   async logInAs(credentials: Credentials): Promise<void> {

@@ -431,10 +431,11 @@ confirmed live this session. Verify before relying on any of it.
   field-mirroring) — not attempted.
 - Item id ↔ product mapping for ids 0, 1, 2, 3 rests on the `item_N_img_link`
   element ids only; detail navigation was confirmed for ids 4 and 5.
-- Whether ordinary trusted Playwright clicks behave correctly against this site in a
-  normal (non-MCP) environment. Expected yes — login clicks did work here, and the
-  committed suite will prove it — but this session could not demonstrate it reliably
-  (see Method).
+- ~~Whether ordinary trusted Playwright clicks behave correctly against this site in a
+  normal (non-MCP) environment.~~ **Resolved 2026-09-01**: the committed web suite
+  (22 tests under plain `@playwright/test`, all clicking normally) passed end to end,
+  confirming the dropped-input behaviour was an MCP-environment quirk, not site
+  behaviour.
 - Login as the same user in two tabs, deep-linking to `/inventory-item.html?id=…`
   while logged out, and invalid `?id=` values (e.g. `?id=99`) were not explored at
   all.

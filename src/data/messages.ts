@@ -18,6 +18,15 @@ export const ORDER_COMPLETE_TEXT =
 export const PAYMENT_INFORMATION_VALUE = 'SauceCard #31337';
 export const SHIPPING_INFORMATION_VALUE = 'Free Pony Express Delivery!';
 
+export const PAGE_TITLE_PRODUCTS = 'Products';
+export const PAGE_TITLE_YOUR_CART = 'Your Cart';
+export const PAGE_TITLE_CHECKOUT_INFORMATION = 'Checkout: Your Information';
+export const PAGE_TITLE_CHECKOUT_OVERVIEW = 'Checkout: Overview';
+export const PAGE_TITLE_CHECKOUT_COMPLETE = 'Checkout: Complete!';
+
+export const ADD_TO_CART_BUTTON_LABEL = 'Add to cart';
+export const REMOVE_BUTTON_LABEL = 'Remove';
+
 // The site interpolates the attempted path into the guard message.
 export function loggedOutAccessErrorFor(path: string): string {
   return `Epic sadface: You can only access '${path}' when you are logged in.`;

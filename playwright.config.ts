@@ -7,6 +7,14 @@ export default defineConfig({
   // A stray test.only would silently shrink the suite to one test; fail CI instead.
   forbidOnly: !!process.env.CI,
 
+  // Nothing shares state (fresh context per test, stateless API), so files and the
+  // tests inside them run fully parallel; ordering dependencies cannot hide.
+  fullyParallel: true,
+
+  // Both targets are shared public demos; CI would otherwise burst with one worker
+  // per core, which is exactly the hammering the discovery ground rules prohibit.
+  workers: process.env.CI ? 2 : undefined,
+
   // One retry in CI separates real regressions from infrastructure flakes. Locally,
   // retries are off so a flaky test fails loudly while it is being written.
   retries: process.env.CI ? 1 : 0,

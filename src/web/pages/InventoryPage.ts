@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Product } from '../../data/products';
+import { ROUTE_INVENTORY } from '../../data/routes';
 
 // The option values of the sort <select>, as observed in discovery §5.
 export type SortOptionValue = 'az' | 'za' | 'lohi' | 'hilo';
@@ -9,6 +10,7 @@ export class InventoryPage {
   readonly pageTitle: Locator;
   readonly productCards: Locator;
   readonly productNames: Locator;
+  readonly productDescriptions: Locator;
   readonly productPrices: Locator;
   readonly sortDropdown: Locator;
   readonly activeSortLabel: Locator;
@@ -20,6 +22,7 @@ export class InventoryPage {
     this.pageTitle = page.locator('[data-test="title"]');
     this.productCards = page.locator('.inventory_item');
     this.productNames = page.locator('.inventory_item_name');
+    this.productDescriptions = page.locator('.inventory_item_desc');
     this.productPrices = page.locator('.inventory_item_price');
     this.sortDropdown = page.locator('[data-test="product-sort-container"]');
     this.activeSortLabel = page.locator('.active_option');
@@ -28,7 +31,7 @@ export class InventoryPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto('/inventory.html');
+    await this.page.goto(ROUTE_INVENTORY);
   }
 
   addToCartButtonFor(product: Product): Locator {

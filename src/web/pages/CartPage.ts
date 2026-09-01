@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Product } from '../../data/products';
+import { ROUTE_CART } from '../../data/routes';
 
 export class CartPage {
   readonly page: Page;
@@ -23,7 +24,7 @@ export class CartPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto('/cart.html');
+    await this.page.goto(ROUTE_CART);
   }
 
   removeButtonFor(product: Product): Locator {

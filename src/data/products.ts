@@ -67,6 +67,10 @@ export const TEST_ALL_THE_THINGS_T_SHIRT: Product = {
   dataTestSlug: 'test.allthethings()-t-shirt-(red)',
 };
 
+export function displayPriceFor(product: Product): string {
+  return `$${product.priceInDollars.toFixed(2)}`;
+}
+
 // In the order the inventory displays them under the default Name (A to Z) sort.
 export const FULL_CATALOGUE: Product[] = [
   SAUCE_LABS_BACKPACK,

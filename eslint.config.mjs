@@ -35,7 +35,10 @@ export default tseslint.config(
       // A non-null assertion is a hidden, unjustified cast.
       '@typescript-eslint/no-non-null-assertion': 'error',
 
-      '@typescript-eslint/no-unused-vars': 'error',
+      // Playwright fixtures activate by their mere presence in a test's destructured
+      // parameters (e.g. loggedInAsStandardUser logs in without ever being
+      // referenced); the rule cannot know that, so those names are exempted.
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^loggedInAs' }],
       '@typescript-eslint/no-floating-promises': 'error',
 
       // CLAUDE.md rule 3: no clever syntax.
