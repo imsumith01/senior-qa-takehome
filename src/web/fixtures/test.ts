@@ -1,5 +1,6 @@
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { STANDARD_USER } from '../../data/users';
+import { ROUTE_INVENTORY } from '../../data/routes';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { ProductDetailPage } from '../pages/ProductDetailPage';
@@ -51,6 +52,9 @@ export const test = base.extend<WebFixtures>({
   loggedInAsStandardUser: async ({ loginPage }, use) => {
     await loginPage.open();
     await loginPage.logInAs(STANDARD_USER);
+    // Anchor before yielding: a rejected login must fail here, by name, not as a
+    // mystery timeout in whatever the test touches first.
+    await expect(loginPage.page).toHaveURL(ROUTE_INVENTORY);
     await use();
   },
 });

@@ -217,3 +217,35 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   profile decision, not a convenience default — and a flake hunt that varies one
   factor per run is what separates "the network is flaky" from a fixable design
   choice.
+
+## 2026-09-01 — the defect suite's alarm was backwards a second time, among a raft of self-review catches
+
+- What was produced: the step-9 fix that replaced `test.fixme` with `test.fail`
+  (log entry 11) shipped with a header comment promising that a rotted selector or
+  a site-side fix "flips the verdict and the suite goes red" — and, separately, an
+  A-to-Z sort test whose expected order was identical to the page's untouched
+  default order, six collection tests asserting "sequential ids" via first + last
+  - length only, a render test asserting element counts but never content, a
+    referential-integrity test vacuously true on empty responses, header assertions
+    without statuses on an API that serves the same content-type on errors, a login
+    fixture that never verified login, and a spread of magic values, mislabelled
+    AAA sections, and copy-stamped comments.
+- Why it was wrong: under `test.fail`, every failure mode is the expected outcome —
+  selector rot, a deleted account, an outage all report green; the alarm fires
+  only on total unexpected success. The mechanism did the opposite of its
+  documentation, again. The vacuous-assertion cluster shared one root: titles and
+  comments promising strictly more than the assertions checked.
+- How it was caught: the step-15 role-reversal review — five independent
+  adversarial passes (vacuity, rule compliance, brittleness, generation tells,
+  unacknowledged gaps) — with every finding verified against the quoted file
+  before being accepted. Full write-up in docs/SELF_REVIEW.md.
+- What the fix was: the defect tests were redesigned as positive pins asserting
+  the defective behaviour itself (badge provably unchanged, URL provably stuck,
+  keystrokes provably landing in the wrong field) — pass while the defect exists,
+  red on a fix or on any breakage, one defect per pin so each flips independently.
+  Full-sequence id assertions, content-level render assertions with image srcs
+  recorded into the catalogue data, status/size anchors, the login-fixture anchor,
+  hoisted constants, relabelled AAA sections, deduplicated comments, honest
+  unimplemented markers in the plan, and seven newly named gap rows. Third lesson
+  from the same file: expected-failure semantics are treacherous enough that the
+  only trustworthy alarm is a positive assertion of the broken behaviour.

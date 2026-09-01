@@ -1,4 +1,4 @@
-// The catalogue exactly as observed live on 2026-09-01; see
+﻿// The catalogue exactly as observed live on 2026-09-01; see
 // docs/discovery/saucedemo-discovery.md §4. Names, prices, and descriptions are
 // verbatim. The slug is recorded from the site's own data-test attributes rather than
 // derived from the name, so a site-side renaming cannot hide behind our derivation.
@@ -11,6 +11,10 @@ export interface Product {
   // The exact slug saucedemo embeds in add-to-cart-…, remove-…, and
   // inventory-item-…-img data-test attributes.
   dataTestSlug: string;
+  // The observed image src. The filename carries a build hash, so a site redeploy
+  // is expected to fail the catalogue test and force a data refresh — the same
+  // contract-pin trade-off as pinning prices.
+  imageFile: string;
 }
 
 export const SAUCE_LABS_BACKPACK: Product = {
@@ -20,6 +24,7 @@ export const SAUCE_LABS_BACKPACK: Product = {
   description:
     'carry.allTheThings() with the sleek, streamlined Sly Pack that melds uncompromising style with unequaled laptop and tablet protection.',
   dataTestSlug: 'sauce-labs-backpack',
+  imageFile: '/assets/sauce-backpack-1200x1500-CjRW-Djj.jpg',
 };
 
 export const SAUCE_LABS_BIKE_LIGHT: Product = {
@@ -29,6 +34,7 @@ export const SAUCE_LABS_BIKE_LIGHT: Product = {
   description:
     "A red light isn't the desired state in testing but it sure helps when riding your bike at night. Water-resistant with 3 lighting modes, 1 AAA battery included.",
   dataTestSlug: 'sauce-labs-bike-light',
+  imageFile: '/assets/bike-light-1200x1500-DxcZRFOA.jpg',
 };
 
 export const SAUCE_LABS_BOLT_T_SHIRT: Product = {
@@ -38,6 +44,7 @@ export const SAUCE_LABS_BOLT_T_SHIRT: Product = {
   description:
     'Get your testing superhero on with the Sauce Labs bolt T-shirt. From American Apparel, 100% ringspun combed cotton, heather gray with red bolt.',
   dataTestSlug: 'sauce-labs-bolt-t-shirt',
+  imageFile: '/assets/bolt-shirt-1200x1500-mR0ldpVS.jpg',
 };
 
 export const SAUCE_LABS_FLEECE_JACKET: Product = {
@@ -47,6 +54,7 @@ export const SAUCE_LABS_FLEECE_JACKET: Product = {
   description:
     "It's not every day that you come across a midweight quarter-zip fleece jacket capable of handling everything from a relaxing day outdoors to a busy day at the office.",
   dataTestSlug: 'sauce-labs-fleece-jacket',
+  imageFile: '/assets/sauce-pullover-1200x1500-BfbI-PSd.jpg',
 };
 
 export const SAUCE_LABS_ONESIE: Product = {
@@ -56,6 +64,7 @@ export const SAUCE_LABS_ONESIE: Product = {
   description:
     "Rib snap infant onesie for the junior automation engineer in development. Reinforced 3-snap bottom closure, two-needle hemmed sleeved and bottom won't unravel.",
   dataTestSlug: 'sauce-labs-onesie',
+  imageFile: '/assets/red-onesie-1200x1500-BrSuq0ic.jpg',
 };
 
 export const TEST_ALL_THE_THINGS_T_SHIRT: Product = {
@@ -65,6 +74,7 @@ export const TEST_ALL_THE_THINGS_T_SHIRT: Product = {
   description:
     'This classic Sauce Labs t-shirt is perfect to wear when cozying up to your keyboard to automate a few tests. Super-soft and comfy ringspun combed cotton.',
   dataTestSlug: 'test.allthethings()-t-shirt-(red)',
+  imageFile: '/assets/red-tatt-1200x1500-E-qp6aYf.jpg',
 };
 
 export function displayPriceFor(product: Product): string {

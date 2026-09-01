@@ -47,8 +47,9 @@ export default tseslint.config(
       // Covers empty catch blocks (CLAUDE.md rule 5: never swallow an error).
       'no-empty': 'error',
 
-      // CLAUDE.md rule 2: one function does one thing. Line count and cyclomatic
-      // complexity are the closest measurable proxies a linter has for that.
+      // CLAUDE.md rule 2: one function does one thing, "about 20 lines". Line count
+      // and cyclomatic complexity are the closest measurable proxies; the cap is 25,
+      // deliberately — a hard 20 would punish the rule's own "about".
       'max-lines-per-function': ['error', { max: 25, skipBlankLines: true, skipComments: true }],
       complexity: ['error', 6],
 

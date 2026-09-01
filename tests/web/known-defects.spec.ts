@@ -5,114 +5,92 @@ import {
   SAUCE_LABS_BIKE_LIGHT,
   SAUCE_LABS_BOLT_T_SHIRT,
 } from '../../src/data/products';
-import {
-  VALID_CHECKOUT_DETAILS,
-  itemTotalInDollarsFor,
-  taxInDollarsFor,
-  roundToCents,
-} from '../../src/data/checkout';
-import {
-  ORDER_COMPLETE_HEADER,
-  itemTotalLabelFor,
-  taxLabelFor,
-  grandTotalLabelFor,
-} from '../../src/data/messages';
-import { ROUTE_INVENTORY, ROUTE_CHECKOUT_COMPLETE } from '../../src/data/routes';
+import { VALID_CHECKOUT_DETAILS } from '../../src/data/checkout';
+import { badgeTextFor } from '../../src/data/messages';
+import { ROUTE_INVENTORY, ROUTE_CHECKOUT_STEP_TWO } from '../../src/data/routes';
 
-// Defect-detection suite. These tests run the core purchase flow as two of the
-// deliberately broken demo users and assert CORRECT behaviour — so they fail, which
-// is the point: a suite that stays green against a broken user is not testing
-// anything. They are declared with test.fail(), which RUNS the flow on every suite
-// run and treats the failure as expected — the main run stays green, yet the day
-// the demo site fixes one of these accounts (or a selector rots), the test's
-// verdict flips and the suite goes red, announcing that docs/KNOWN_DEFECTS.md is
-// out of date. (test.fixme would skip the body entirely and detect nothing.)
+// Defect pins for the deliberately broken demo accounts. Each test asserts the
+// DEFECTIVE behaviour precisely, so it passes while the defect exists and goes red
+// the moment the site fixes it — or the moment anything else breaks (a rotted
+// selector, a removed account). Earlier designs (test.fixme, then test.fail) could
+// not raise that alarm; the full history and defect register are in
+// docs/KNOWN_DEFECTS.md.
 
-// WEB-031 — dies at the second add: problem_user's Bolt T-Shirt button is dead.
-// The assertions beyond that point are deliberate deeper tripwires: if the dead
-// button is ever fixed, the flow proceeds and the form-mangling defect (typing into
-// Last Name lands in First Name) keeps this test failing-as-expected.
-test.fail(
-  'problem_user can complete the same purchase a standard user can',
-  { tag: ['@known-defect'] },
-  async ({ loginPage, inventoryPage, cartPage, checkoutInformationPage, page }) => {
-    // Arrange
+// WEB-031
+test(
+  'problem_user clicks Add to cart on the Bolt T-Shirt and nothing happens',
+  { tag: ['@known-defect', '@regression'] },
+  async ({ loginPage, inventoryPage, page }) => {
+    // Arrange — one working add proves the cart machinery is alive for this user.
     await loginPage.open();
     await loginPage.logInAs(PROBLEM_USER);
     await expect(page).toHaveURL(ROUTE_INVENTORY);
-
-    // Act — build a two-item basket.
     await inventoryPage.addProductToCart(SAUCE_LABS_BACKPACK);
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(1));
+
+    // Act
     await inventoryPage.addProductToCart(SAUCE_LABS_BOLT_T_SHIRT);
 
-    // Assert — a working shop shows two items in the cart.
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('2');
-
-    // Act — check out.
-    await inventoryPage.openCart();
-    await expect(cartPage.cartItems).toHaveCount(2);
-    await cartPage.beginCheckout();
-    await checkoutInformationPage.fillDetails(VALID_CHECKOUT_DETAILS);
-
-    // Assert — the form holds what was typed into it.
-    await expect(checkoutInformationPage.firstNameInput).toHaveValue(
-      VALID_CHECKOUT_DETAILS.firstName,
-    );
-    await expect(checkoutInformationPage.lastNameInput).toHaveValue(
-      VALID_CHECKOUT_DETAILS.lastName,
-    );
+    // Assert — the dead button: badge unchanged, button never flips to Remove.
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(1));
+    await expect(inventoryPage.addToCartButtonFor(SAUCE_LABS_BOLT_T_SHIRT)).toBeVisible();
   },
 );
 
-// WEB-032 — the basket avoids error_user's dead buttons on purpose, so the flow
-// reaches the deepest defect: Finish silently does nothing and no order can ever
-// be completed.
-/* eslint-disable max-lines-per-function -- the flow must reach the deepest defect (Finish is a no-op), so its stages cannot be split without losing the sequence */
-test.fail(
-  'error_user can complete the same purchase a standard user can',
-  { tag: ['@known-defect'] },
+// WEB-033
+test(
+  'problem_user types a last name and it lands in the first-name field instead',
+  { tag: ['@known-defect', '@regression'] },
+  async ({ loginPage, inventoryPage, cartPage, checkoutInformationPage, page }) => {
+    // Arrange — reach checkout step one with a product this user CAN add.
+    await loginPage.open();
+    await loginPage.logInAs(PROBLEM_USER);
+    await expect(page).toHaveURL(ROUTE_INVENTORY);
+    await inventoryPage.addProductToCart(SAUCE_LABS_BACKPACK);
+    await inventoryPage.openCart();
+    await cartPage.beginCheckout();
+
+    // Act — fill first name, then last name.
+    await checkoutInformationPage.fillDetails(VALID_CHECKOUT_DETAILS);
+
+    // Assert — the last keystrokes overwrote the first-name field, and the
+    // last-name field kept nothing.
+    await expect(checkoutInformationPage.firstNameInput).toHaveValue(
+      VALID_CHECKOUT_DETAILS.lastName,
+    );
+    await expect(checkoutInformationPage.lastNameInput).toHaveValue('');
+  },
+);
+
+// WEB-032
+test(
+  'error_user clicks Finish and stays stranded on the checkout overview',
+  { tag: ['@known-defect', '@regression'] },
   async ({
     loginPage,
     inventoryPage,
     cartPage,
     checkoutInformationPage,
     checkoutOverviewPage,
-    checkoutCompletePage,
     page,
   }) => {
-    // Arrange
-    const basket = [SAUCE_LABS_BACKPACK, SAUCE_LABS_BIKE_LIGHT];
-    const expectedItemTotal = itemTotalInDollarsFor(basket);
-    const expectedTax = taxInDollarsFor(expectedItemTotal);
-    const expectedGrandTotal = roundToCents(expectedItemTotal + expectedTax);
+    // Arrange — a basket of products this user can add, carried to the overview.
     await loginPage.open();
     await loginPage.logInAs(ERROR_USER);
     await expect(page).toHaveURL(ROUTE_INVENTORY);
-
-    // Act — build the basket and check out.
-    for (const product of basket) {
-      await inventoryPage.addProductToCart(product);
-    }
-    await expect(inventoryPage.shoppingCartBadge).toHaveText(String(basket.length));
+    await inventoryPage.addProductToCart(SAUCE_LABS_BACKPACK);
+    await inventoryPage.addProductToCart(SAUCE_LABS_BIKE_LIGHT);
     await inventoryPage.openCart();
     await cartPage.beginCheckout();
     await checkoutInformationPage.fillDetailsAndContinue(VALID_CHECKOUT_DETAILS);
+    await expect(page).toHaveURL(ROUTE_CHECKOUT_STEP_TWO);
 
-    // Assert — the arithmetic is right for this user too.
-    await expect(checkoutOverviewPage.itemTotalLabel).toHaveText(
-      itemTotalLabelFor(expectedItemTotal),
-    );
-    await expect(checkoutOverviewPage.taxLabel).toHaveText(taxLabelFor(expectedTax));
-    await expect(checkoutOverviewPage.totalLabel).toHaveText(
-      grandTotalLabelFor(expectedGrandTotal),
-    );
-
-    // Act — place the order.
+    // Act
     await checkoutOverviewPage.finishOrder();
 
-    // Assert — a working shop confirms the order.
-    await expect(page).toHaveURL(ROUTE_CHECKOUT_COMPLETE);
-    await expect(checkoutCompletePage.completeHeader).toHaveText(ORDER_COMPLETE_HEADER);
+    // Assert — Finish is a no-op: no navigation, no confirmation, no order. This
+    // user can never complete a purchase.
+    await expect(page).toHaveURL(ROUTE_CHECKOUT_STEP_TWO);
+    await expect(checkoutOverviewPage.finishButton).toBeVisible();
   },
 );
-/* eslint-enable max-lines-per-function */

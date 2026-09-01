@@ -10,6 +10,8 @@ import {
   PAGE_TITLE_CHECKOUT_OVERVIEW,
   ORDER_COMPLETE_HEADER,
   EMPTY_CART_ITEM_TOTAL_TEXT,
+  CART_ROW_QUANTITY,
+  badgeTextFor,
   taxLabelFor,
   grandTotalLabelFor,
 } from '../../src/data/messages';
@@ -41,7 +43,7 @@ test(
       displayPriceFor(SAUCE_LABS_BACKPACK),
       displayPriceFor(SAUCE_LABS_BIKE_LIGHT),
     ]);
-    await expect(cartPage.itemQuantities).toHaveText(['1', '1']);
+    await expect(cartPage.itemQuantities).toHaveText([CART_ROW_QUANTITY, CART_ROW_QUANTITY]);
   },
 );
 
@@ -50,7 +52,7 @@ test(
   'removing an item on the cart page updates both the row list and the badge',
   { tag: ['@regression'] },
   async ({ loggedInAsStandardUser, inventoryPage, cartPage }) => {
-    // Arrange
+    // Arrange — with a guard that both rows made it into the cart.
     await inventoryPage.addProductToCart(SAUCE_LABS_BACKPACK);
     await inventoryPage.addProductToCart(SAUCE_LABS_BIKE_LIGHT);
     await inventoryPage.openCart();
@@ -61,7 +63,7 @@ test(
 
     // Assert
     await expect(cartPage.itemNames).toHaveText([SAUCE_LABS_BIKE_LIGHT.name]);
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(1));
   },
 );
 
@@ -79,7 +81,7 @@ test(
 
     // Assert
     await expect(page).toHaveURL(ROUTE_INVENTORY);
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(1));
     await expect(inventoryPage.removeFromCartButtonFor(SAUCE_LABS_BACKPACK)).toBeVisible();
   },
 );

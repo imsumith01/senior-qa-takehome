@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
-// Shape observed in docs/discovery/jsonplaceholder-contract.md §1. The url fields
-// stay plain strings: they point at a third-party host whose format is not part of
-// this API's contract (docs/TEST_PLAN.md §1).
+// The url fields stay plain strings: they point at a third-party host whose format
+// is not part of this API's contract (docs/TEST_PLAN.md §1).
 export const photoSchema = z.strictObject({
   albumId: z.number(),
   id: z.number(),

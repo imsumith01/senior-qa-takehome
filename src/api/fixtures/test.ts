@@ -22,14 +22,9 @@ interface ApiFixtures {
 }
 
 export const test = base.extend<ApiFixtures, ApiWorkerFixtures>({
-  // A dedicated request context instead of the built-in one, for two reasons found
-  // during framework validation (docs/FRAMEWORK_VALIDATION.md):
-  // 1. The per-request timeout — half the test budget — makes a hung request fail
-  //    as "request timed out" naming its URL, not as an unexplained test timeout.
-  // 2. Worker scope: the built-in fixture opens a fresh context (fresh TLS
-  //    connections) per test, and a repeat-run burst of hundreds of new
-  //    connections to one host is what edge proxies throttle. One context per
-  //    worker reuses connections. The API is stateless, so tests stay isolated.
+  // Worker-scoped with a per-request timeout, replacing the built-in per-test
+  // context; the flake evidence behind both choices is in FRAMEWORK_VALIDATION §2.
+  // The API is stateless, so sharing the context does not couple tests.
   apiRequest: [
     async ({ playwright }, use) => {
       const context = await playwright.request.newContext({

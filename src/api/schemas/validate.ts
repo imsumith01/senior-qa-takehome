@@ -1,3 +1,5 @@
+// Every schema in this folder transcribes the shapes observed live in
+// docs/discovery/jsonplaceholder-contract.md §1.
 import type { ZodType } from 'zod';
 
 const MAX_ISSUES_TO_REPORT = 10;

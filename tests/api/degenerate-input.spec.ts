@@ -1,18 +1,24 @@
 import { test, expect } from '../../src/api/fixtures/test';
-import { NEW_POST_PROBE, SYNTHESISED_POST_ID } from '../../src/data/api';
+import {
+  CONTENT_TYPE_JSON,
+  CONTENT_TYPE_PLAIN_TEXT,
+  MALFORMED_JSON_PROBE,
+  NEW_POST_PROBE,
+  SYNTHESISED_POST_ID,
+} from '../../src/data/api';
 
-// API-017 — odd but observed, pinned rather than prettified: a malformed JSON body
-// with a JSON content type produces a 500 (not a 400) whose body is a plain-text
-// body-parser stack trace leaking server paths. If the API ever starts returning a
-// proper 400, this test should fail and force the contract doc to be updated.
+// API-017 — a malformed JSON body with a JSON content type produces a 500 (not the
+// 400 a client would expect) whose body is a plain-text body-parser stack trace
+// leaking server paths. That is what the API does today, so that is what this test
+// requires; a fix to a proper 400 should fail here and force a contract-doc update.
 test(
   'POST /posts with malformed JSON returns a 500 carrying a parser stack trace',
   { tag: ['@negative'] },
   async ({ postsClient }) => {
     // Act
     const response = await postsClient.createPostFromRawBody(
-      '{"title": "broken",',
-      'application/json',
+      MALFORMED_JSON_PROBE,
+      CONTENT_TYPE_JSON,
     );
 
     // Assert
@@ -31,7 +37,7 @@ test(
     // Act
     const withWrongContentType = await postsClient.createPostFromRawBody(
       JSON.stringify(NEW_POST_PROBE),
-      'text/plain',
+      CONTENT_TYPE_PLAIN_TEXT,
     );
 
     // Assert

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Shape observed in docs/discovery/jsonplaceholder-contract.md §1.
 export const albumSchema = z.strictObject({
   userId: z.number(),
   id: z.number(),

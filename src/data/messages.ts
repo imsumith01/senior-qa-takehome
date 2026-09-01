@@ -27,6 +27,14 @@ export const PAGE_TITLE_CHECKOUT_COMPLETE = 'Checkout: Complete!';
 export const ADD_TO_CART_BUTTON_LABEL = 'Add to cart';
 export const REMOVE_BUTTON_LABEL = 'Remove';
 
+// The badge shows the number of cart line items as plain text.
+export function badgeTextFor(itemCount: number): string {
+  return String(itemCount);
+}
+
+// Every cart row shows quantity 1; the UI has no way to change it.
+export const CART_ROW_QUANTITY = '1';
+
 // The site interpolates the attempted path into the guard message.
 export function loggedOutAccessErrorFor(path: string): string {
   return `Epic sadface: You can only access '${path}' when you are logged in.`;

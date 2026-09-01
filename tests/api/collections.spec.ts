@@ -16,10 +16,21 @@ import {
   SMOKE_RESPONSE_TIME_LIMIT_MS,
 } from '../../src/data/api';
 
-// API-001 — the smoke read carries the hang-guard timing check: generous by design,
-// because latency here measures the network path, not the app (docs/TEST_PLAN.md §1).
+// First+last-id checks cannot see a gap or duplicate in the middle, so the whole
+// sequence is compared.
+function sequentialIdsUpTo(count: number): number[] {
+  return Array.from({ length: count }, (unusedValue, index) => index + 1);
+}
+
+// The five per-collection tests below are deliberately written out rather than
+// looped: their zod output types differ, and the generics needed to unify them
+// would trade real readability for brevity (CLAUDE.md rule 15). /posts itself is
+// covered by API-001, which owns the smoke tag and the hang-guard.
+
+// API-001 + API-002 + API-003 for /posts. The timing check is a hang-guard for a
+// stuck network or dying service, not a latency benchmark (docs/TEST_PLAN.md §1).
 test(
-  'GET /posts answers within the hang-guard limit with 100 schema-valid posts',
+  'GET /posts answers within the hang-guard limit with 100 schema-valid, gap-free posts',
   { tag: ['@smoke', '@contract'] },
   async ({ postsClient }) => {
     // Act
@@ -31,31 +42,13 @@ test(
     expect(response.status()).toBe(200);
     expect(elapsedMs).toBeLessThan(SMOKE_RESPONSE_TIME_LIMIT_MS);
     const posts = parseWithSchema(postCollectionSchema, await response.json(), 'GET /posts body');
-    expect(posts).toHaveLength(POSTS_COUNT);
+    expect(posts.map((post) => post.id)).toEqual(sequentialIdsUpTo(POSTS_COUNT));
   },
 );
 
-// API-002 + API-003, per collection: documented count, every item schema-valid, and
-// ids running 1..count with no gaps (first and last item checked).
-
+// API-002 + API-003
 test(
-  'GET /posts returns the full collection with sequential ids',
-  { tag: ['@contract'] },
-  async ({ postsClient }) => {
-    // Act
-    const response = await postsClient.getAllPosts();
-
-    // Assert
-    expect(response.status()).toBe(200);
-    const posts = parseWithSchema(postCollectionSchema, await response.json(), 'GET /posts body');
-    expect(posts).toHaveLength(POSTS_COUNT);
-    expect(posts[0]?.id).toBe(1);
-    expect(posts[POSTS_COUNT - 1]?.id).toBe(POSTS_COUNT);
-  },
-);
-
-test(
-  'GET /comments returns the full collection with sequential ids',
+  'GET /comments returns the full collection with ids running 1..500 gap-free',
   { tag: ['@contract'] },
   async ({ commentsClient }) => {
     // Act
@@ -68,14 +61,13 @@ test(
       await response.json(),
       'GET /comments body',
     );
-    expect(comments).toHaveLength(COMMENTS_COUNT);
-    expect(comments[0]?.id).toBe(1);
-    expect(comments[COMMENTS_COUNT - 1]?.id).toBe(COMMENTS_COUNT);
+    expect(comments.map((comment) => comment.id)).toEqual(sequentialIdsUpTo(COMMENTS_COUNT));
   },
 );
 
+// API-002 + API-003
 test(
-  'GET /albums returns the full collection with sequential ids',
+  'GET /albums returns the full collection with ids running 1..100 gap-free',
   { tag: ['@contract'] },
   async ({ albumsClient }) => {
     // Act
@@ -88,14 +80,13 @@ test(
       await response.json(),
       'GET /albums body',
     );
-    expect(albums).toHaveLength(ALBUMS_COUNT);
-    expect(albums[0]?.id).toBe(1);
-    expect(albums[ALBUMS_COUNT - 1]?.id).toBe(ALBUMS_COUNT);
+    expect(albums.map((album) => album.id)).toEqual(sequentialIdsUpTo(ALBUMS_COUNT));
   },
 );
 
+// API-002 + API-003
 test(
-  'GET /photos returns the full collection with sequential ids',
+  'GET /photos returns the full collection with ids running 1..5000 gap-free',
   { tag: ['@contract'] },
   async ({ photosClient }) => {
     // Act
@@ -108,14 +99,13 @@ test(
       await response.json(),
       'GET /photos body',
     );
-    expect(photos).toHaveLength(PHOTOS_COUNT);
-    expect(photos[0]?.id).toBe(1);
-    expect(photos[PHOTOS_COUNT - 1]?.id).toBe(PHOTOS_COUNT);
+    expect(photos.map((photo) => photo.id)).toEqual(sequentialIdsUpTo(PHOTOS_COUNT));
   },
 );
 
+// API-002 + API-003
 test(
-  'GET /todos returns the full collection with sequential ids',
+  'GET /todos returns the full collection with ids running 1..200 gap-free',
   { tag: ['@contract'] },
   async ({ todosClient }) => {
     // Act
@@ -124,14 +114,13 @@ test(
     // Assert
     expect(response.status()).toBe(200);
     const todos = parseWithSchema(todoCollectionSchema, await response.json(), 'GET /todos body');
-    expect(todos).toHaveLength(TODOS_COUNT);
-    expect(todos[0]?.id).toBe(1);
-    expect(todos[TODOS_COUNT - 1]?.id).toBe(TODOS_COUNT);
+    expect(todos.map((todo) => todo.id)).toEqual(sequentialIdsUpTo(TODOS_COUNT));
   },
 );
 
+// API-002 + API-003
 test(
-  'GET /users returns the full collection with sequential ids',
+  'GET /users returns the full collection with ids running 1..10 gap-free',
   { tag: ['@contract'] },
   async ({ usersClient }) => {
     // Act
@@ -140,8 +129,6 @@ test(
     // Assert
     expect(response.status()).toBe(200);
     const users = parseWithSchema(userCollectionSchema, await response.json(), 'GET /users body');
-    expect(users).toHaveLength(USERS_COUNT);
-    expect(users[0]?.id).toBe(1);
-    expect(users[USERS_COUNT - 1]?.id).toBe(USERS_COUNT);
+    expect(users.map((user) => user.id)).toEqual(sequentialIdsUpTo(USERS_COUNT));
   },
 );

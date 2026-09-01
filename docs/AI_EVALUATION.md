@@ -2,10 +2,10 @@
 
 How this exercise was actually built with an AI assistant (Claude), what the AI got
 right, what it got wrong, and what made the difference. This document is assembled
-from [AI_EVALUATION_LOG.md](AI_EVALUATION_LOG.md) — twelve dated entries written at
-the moment each mistake was caught, per the standing rule against reconstructing
-notes — and from the commit history, which embeds every prompt verbatim. Where a
-claim cites a commit or log entry, it is checkable.
+from [AI_EVALUATION_LOG.md](AI_EVALUATION_LOG.md) — dated entries (thirteen at last
+count) written at the moment each mistake was caught, per the standing rule against
+reconstructing notes — and from the commit history, which embeds every prompt
+verbatim. Where a claim cites a commit or log entry, it is checkable.
 
 ## Approach
 
@@ -107,7 +107,13 @@ casual review.
    lectured that "a suite that stays green against a broken user is not testing
    anything." Plausible, well-written, self-contradictory, wrong. Caught by the
    adversarial review (all three reviewers independently), fixed to `test.fail`
-   and proven by run (log 11; `6c685a4`).
+   and proven by run (log 11; `6c685a4`). _Postscript: the step-15 self-review
+   then found the `test.fail` replacement had its own inverted alarm — every
+   failure mode, selector rot included, read as "expected" and stayed green. The
+   mechanism is now positive pins of the defective behaviour (log 13,
+   SELF_REVIEW §2.1). The same trap, three designs deep, is the strongest
+   evidence in this document that plausible test semantics must be reasoned
+   through adversarially, not asserted._
 2. **A factual sentence contradicting the project's own documents.** The plan's
    first draft stated "neither target persists anything a test writes" — fluent,
    confident, and false: the web discovery had _proven_ SauceDemo's cart survives

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Shape observed in docs/discovery/jsonplaceholder-contract.md §1. Strict: an extra
-// field is contract drift and should fail loudly.
+// Strict: an extra field is contract drift and should fail loudly.
 export const postSchema = z.strictObject({
   userId: z.number(),
   id: z.number(),

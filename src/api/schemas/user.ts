@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Shape observed in docs/discovery/jsonplaceholder-contract.md §1. Note geo.lat and
-// geo.lng: the API serves them as strings, not numbers — an observed quirk this
+// geo.lat and geo.lng are served as strings, not numbers — an observed quirk this
 // schema deliberately pins.
 export const userSchema = z.strictObject({
   id: z.number(),

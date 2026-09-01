@@ -14,6 +14,7 @@ import {
   roundToCents,
 } from '../../src/data/checkout';
 import {
+  badgeTextFor,
   CHECKOUT_ERROR_FIRST_NAME_REQUIRED,
   CHECKOUT_ERROR_LAST_NAME_REQUIRED,
   CHECKOUT_ERROR_POSTAL_CODE_REQUIRED,
@@ -117,7 +118,7 @@ test(
 
     // Assert — cart is untouched by the cancelled checkout.
     await expect(page).toHaveURL(ROUTE_INVENTORY);
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(1));
   },
 );
 

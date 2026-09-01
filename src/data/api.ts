@@ -11,13 +11,33 @@ export const PHOTOS_COUNT = 5000;
 export const TODOS_COUNT = 200;
 export const USERS_COUNT = 10;
 
+export const PROBED_POST_ID = 1;
+export const PROBED_USER_ID = 1;
 export const COMMENTS_ON_POST_1 = 5;
 export const TODOS_FOR_USER_1 = 20;
 export const POSTS_BY_USER_1 = 10;
 
-// The id every POST /posts response synthesises (max id + 1 over the static data,
-// recomputed per request, never allocated — discovery §8).
+export const NON_EXISTENT_USER_ID = 9999;
+
+// Ids that must all miss: boundary, negative, non-numeric, out of range.
+export const MISSING_ID_PROBES = ['0', '-1', 'abc', '9999'];
+
+// A parameter name the API has never heard of; it ignores it (discovery §4).
+export const UNKNOWN_FILTER_PROBE = { nosuchfield: '1' };
+
+// Every kind of miss, and DELETE, answers with this exact body.
+export const EMPTY_OBJECT_BODY_TEXT = '{}';
+
+// The id every POST /posts response synthesises (discovery §8).
 export const SYNTHESISED_POST_ID = 101;
+
+export const PROBE_TITLE_REPLACED = 'replaced title probe';
+export const PROBE_TITLE_ONLY = 'only a title';
+export const PROBE_TITLE_PATCHED = 'patched title probe';
+
+export const MALFORMED_JSON_PROBE = '{"title": "broken",';
+export const CONTENT_TYPE_JSON = 'application/json';
+export const CONTENT_TYPE_PLAIN_TEXT = 'text/plain';
 
 // GET /posts/1, verbatim.
 export const KNOWN_POST_1: Post = {
@@ -42,8 +62,6 @@ export const CORS_PROBE_ORIGIN = 'https://example.com';
 // enough that only a stuck network or a dying service trips it.
 export const SMOKE_RESPONSE_TIME_LIMIT_MS = 5000;
 
-// Per-request timeout, deliberately half the 30 s test budget: a hung request then
-// fails as "request timed out" naming its URL instead of eating the whole test and
-// dying as an unexplained test timeout. Added after the framework-validation flake
-// hunt caught exactly that failure mode (docs/FRAMEWORK_VALIDATION.md).
+// Half the test budget, so a hung request fails naming its URL rather than as a
+// bare test timeout (docs/FRAMEWORK_VALIDATION.md §2).
 export const API_REQUEST_TIMEOUT_MS = 15000;

@@ -4,7 +4,14 @@ import { todoCollectionSchema } from '../../src/api/schemas/todo';
 import { postCollectionSchema } from '../../src/api/schemas/post';
 import { userCollectionSchema } from '../../src/api/schemas/user';
 import { parseWithSchema } from '../../src/api/schemas/validate';
-import { COMMENTS_ON_POST_1, TODOS_FOR_USER_1 } from '../../src/data/api';
+import {
+  COMMENTS_ON_POST_1,
+  TODOS_FOR_USER_1,
+  PROBED_POST_ID,
+  PROBED_USER_ID,
+  POSTS_COUNT,
+  USERS_COUNT,
+} from '../../src/data/api';
 
 // API-006
 test(
@@ -12,18 +19,19 @@ test(
   { tag: ['@contract'] },
   async ({ postsClient, commentsClient }) => {
     // Act
-    const nestedResponse = await postsClient.getCommentsForPost(1);
-    const filteredResponse = await commentsClient.getCommentsFilteredByPostId(1);
+    const nestedResponse = await postsClient.getCommentsForPost(PROBED_POST_ID);
+    const filteredResponse = await commentsClient.getCommentsFilteredByPostId(PROBED_POST_ID);
 
     // Assert — every foreign key matches, not just a non-empty array.
     expect(nestedResponse.status()).toBe(200);
+    expect(filteredResponse.status()).toBe(200);
     const nestedComments = parseWithSchema(
       commentCollectionSchema,
       await nestedResponse.json(),
       'GET /posts/1/comments body',
     );
     expect(nestedComments).toHaveLength(COMMENTS_ON_POST_1);
-    const strayComments = nestedComments.filter((comment) => comment.postId !== 1);
+    const strayComments = nestedComments.filter((comment) => comment.postId !== PROBED_POST_ID);
     expect(strayComments).toEqual([]);
 
     const filteredComments = parseWithSchema(
@@ -41,18 +49,19 @@ test(
   { tag: ['@contract'] },
   async ({ usersClient, todosClient }) => {
     // Act
-    const nestedResponse = await usersClient.getTodosForUser(1);
-    const filteredResponse = await todosClient.getTodosFilteredByUserId(1);
+    const nestedResponse = await usersClient.getTodosForUser(PROBED_USER_ID);
+    const filteredResponse = await todosClient.getTodosFilteredByUserId(PROBED_USER_ID);
 
     // Assert
     expect(nestedResponse.status()).toBe(200);
+    expect(filteredResponse.status()).toBe(200);
     const nestedTodos = parseWithSchema(
       todoCollectionSchema,
       await nestedResponse.json(),
       'GET /users/1/todos body',
     );
     expect(nestedTodos).toHaveLength(TODOS_FOR_USER_1);
-    const strayTodos = nestedTodos.filter((todo) => todo.userId !== 1);
+    const strayTodos = nestedTodos.filter((todo) => todo.userId !== PROBED_USER_ID);
     expect(strayTodos).toEqual([]);
 
     const filteredTodos = parseWithSchema(
@@ -74,7 +83,10 @@ test(
     const postsResponse = await postsClient.getAllPosts();
     const usersResponse = await usersClient.getAllUsers();
 
-    // Assert — a failure lists the offending post ids instead of a bare false.
+    // Assert — anchored on status and size first: an empty response would make the
+    // join check below vacuously true. A failure lists the offending post ids.
+    expect(postsResponse.status()).toBe(200);
+    expect(usersResponse.status()).toBe(200);
     const posts = parseWithSchema(
       postCollectionSchema,
       await postsResponse.json(),
@@ -85,6 +97,8 @@ test(
       await usersResponse.json(),
       'GET /users body',
     );
+    expect(posts).toHaveLength(POSTS_COUNT);
+    expect(users).toHaveLength(USERS_COUNT);
     const knownUserIds = new Set(users.map((user) => user.id));
     const orphanedPostIds = posts
       .filter((post) => !knownUserIds.has(post.userId))

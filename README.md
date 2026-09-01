@@ -36,9 +36,10 @@ npm test
 These exact commands were verified against a fresh clone on a cold path — see
 [docs/FRAMEWORK_VALIDATION.md](docs/FRAMEWORK_VALIDATION.md) §6 (65 passed, exit 0).
 
-Two tests in `tests/web/known-defects.spec.ts` are declared `test.fail()`: they run
-the purchase flow as broken demo accounts and are _expected_ to fail, so the run
-stays green. [docs/KNOWN_DEFECTS.md](docs/KNOWN_DEFECTS.md) explains why they exist.
+Three tests in `tests/web/known-defects.spec.ts` are positive pins of the broken
+demo accounts' defects: they pass while a defect exists and go red when the site
+fixes it — [docs/KNOWN_DEFECTS.md](docs/KNOWN_DEFECTS.md) has the register and the
+alarm-design history.
 
 ## Repository layout
 

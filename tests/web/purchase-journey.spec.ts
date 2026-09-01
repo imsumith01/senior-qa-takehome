@@ -12,6 +12,7 @@ import {
   roundToCents,
 } from '../../src/data/checkout';
 import {
+  badgeTextFor,
   PAGE_TITLE_PRODUCTS,
   PAGE_TITLE_YOUR_CART,
   PAGE_TITLE_CHECKOUT_INFORMATION,
@@ -45,7 +46,7 @@ test(
     const expectedTax = taxInDollarsFor(expectedItemTotal);
     const expectedGrandTotal = roundToCents(expectedItemTotal + expectedTax);
 
-    // Act — log in.
+    // Act
     await loginPage.open();
     await loginPage.logInAs(STANDARD_USER);
 
@@ -54,23 +55,25 @@ test(
     await expect(inventoryPage.pageTitle).toHaveText(PAGE_TITLE_PRODUCTS);
     await expect(inventoryPage.productCards).toHaveCount(FULL_CATALOGUE.length);
 
-    // Act — build the basket.
+    // Act
     for (const product of basket) {
       await inventoryPage.addProductToCart(product);
-      await expect(inventoryPage.removeFromCartButtonFor(product)).toBeVisible();
     }
 
-    // Assert — the badge counts every added item.
-    await expect(inventoryPage.shoppingCartBadge).toHaveText(String(basket.length));
+    // Assert — every add flipped its button, and the badge counts them all.
+    for (const product of basket) {
+      await expect(inventoryPage.removeFromCartButtonFor(product)).toBeVisible();
+    }
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(badgeTextFor(basket.length));
 
-    // Act — review the cart.
+    // Act
     await inventoryPage.openCart();
 
     // Assert — the cart lists exactly the basket.
     await expect(cartPage.pageTitle).toHaveText(PAGE_TITLE_YOUR_CART);
     await expect(cartPage.itemNames).toHaveText(basket.map((product) => product.name));
 
-    // Act — enter checkout information and continue.
+    // Act — through step one with valid details, anchored on its title first.
     await cartPage.beginCheckout();
     await expect(checkoutInformationPage.pageTitle).toHaveText(PAGE_TITLE_CHECKOUT_INFORMATION);
     await checkoutInformationPage.fillDetailsAndContinue(VALID_CHECKOUT_DETAILS);
@@ -86,15 +89,15 @@ test(
       grandTotalLabelFor(expectedGrandTotal),
     );
 
-    // Act — place the order.
+    // Act
     await checkoutOverviewPage.finishOrder();
 
-    // Assert — the order is confirmed.
+    // Assert
     await expect(checkoutCompletePage.pageTitle).toHaveText(PAGE_TITLE_CHECKOUT_COMPLETE);
     await expect(checkoutCompletePage.completeHeader).toHaveText(ORDER_COMPLETE_HEADER);
     await expect(checkoutCompletePage.completeText).toHaveText(ORDER_COMPLETE_TEXT);
 
-    // Act — return to the shop.
+    // Act
     await checkoutCompletePage.returnToProducts();
 
     // Assert — the order emptied the cart.

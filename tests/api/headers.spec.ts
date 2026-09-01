@@ -19,7 +19,11 @@ test(
     const singleResponse = await postsClient.getPostById(KNOWN_POST_1.id);
     const writeResponse = await postsClient.createPost(NEW_POST_PROBE);
 
-    // Assert
+    // Assert — statuses first: this API sends the same content-type on its error
+    // responses, so without them the header checks would pass on broken endpoints.
+    expect(collectionResponse.status()).toBe(200);
+    expect(singleResponse.status()).toBe(200);
+    expect(writeResponse.status()).toBe(201);
     expect(collectionResponse.headers()['content-type']).toBe(EXPECTED_JSON_CONTENT_TYPE);
     expect(singleResponse.headers()['content-type']).toBe(EXPECTED_JSON_CONTENT_TYPE);
     expect(writeResponse.headers()['content-type']).toBe(EXPECTED_JSON_CONTENT_TYPE);
