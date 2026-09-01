@@ -1,0 +1,11 @@
+# Prompt archives must stay byte-for-byte verbatim; formatting would falsify them.
+# CLAUDE.md mirrors the original rules prompt almost verbatim, so it gets the same
+# protection.
+prompts/
+CLAUDE.md
+
+# Generated output.
+test-results/
+playwright-report/
+blob-report/
+package-lock.json

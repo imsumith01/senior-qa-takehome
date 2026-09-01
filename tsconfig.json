@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // Node 20+ supports everything in ES2022; DOM is needed for code that runs inside
+    // the browser via page.evaluate.
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    // Playwright transpiles tests with esbuild, which resolves extensionless relative
+    // imports; bundler resolution makes tsc see modules the same way.
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+
+    // Strict mode plus noUncheckedIndexedAccess: indexing into arrays and records
+    // yields `T | undefined`, forcing tests to prove the data they read exists.
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Dependency type errors are not this project's problem to fix.
+    "skipLibCheck": true,
+
+    // Playwright transpiles tests itself; tsc exists only as the `typecheck` script.
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "playwright.config.ts"]
+}
