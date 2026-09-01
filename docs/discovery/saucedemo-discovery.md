@@ -337,6 +337,13 @@ token=TOKEN`) and CORS failures to `submit.backtrace.io/UNIVERSE/TOKEN/json`. A
 15. **Accessibility gaps**: the cart link has no accessible name; the six usernames
     render as a single unbroken text run; the login inputs lack `autocomplete`
     attributes (Chrome logs a suggestion for `current-password`).
+16. **An empty cart can be checked out end to end** (observed in a follow-up session
+    on 2026-09-01, closing the gap the original session left): with zero items,
+    Checkout opens step one, valid details reach step two showing zero line items
+    with `Item total: $0`, `Tax: $0.00`, `Total: $0.00`, and Finish lands on the
+    normal "Thank you for your order!" page. Two defects in one: a $0 order is
+    accepted, and the empty subtotal drops its decimal places (`$0`, not `$0.00`)
+    while Tax and Total keep theirs.
 
 ## Session and state storage (how the app remembers things)
 
@@ -392,6 +399,7 @@ Preferred form is the `data-test` attribute where one exists.
 | Cart                         | Row                      | `[data-test="inventory-item"]`                                             | yes              | class `cart_item`; same data-test as detail container                                                                                            |
 | Cart                         | Quantity                 | `[data-test="item-quantity"]`                                              | yes              | always `1`                                                                                                                                       |
 | Cart                         | Row name / price         | `[data-test="inventory-item-name"]` / `[data-test="inventory-item-price"]` | yes              | same data-tests as detail page                                                                                                                   |
+| Cart                         | Row description          | `[data-test="inventory-item-desc"]`                                        | yes              | verified in a follow-up session 2026-09-01                                                                                                       |
 | Cart                         | Remove (per item)        | `[data-test="remove-sauce-labs-backpack"]`                                 | yes              | same scheme as inventory                                                                                                                         |
 | Cart                         | Continue Shopping        | `[data-test="continue-shopping"]`                                          | yes              |                                                                                                                                                  |
 | Cart                         | Checkout                 | `[data-test="checkout"]`                                                   | yes              |                                                                                                                                                  |
