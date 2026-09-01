@@ -168,3 +168,27 @@ Filename too long` — Windows' MAX_PATH limit, which the scratchpad path exceed
   page, read the button's attributes: `data-test="remove"`, `id="remove"`, text
   "Remove", then remove it again and log out). The selector table now carries the
   verified row and this entry; the page object gets the selector legitimately.
+
+## 2026-09-01 — the defect-detection suite was written so it could never detect anything
+
+- What was produced: WEB-031/WEB-032 declared with `test.fixme(title, body)`, plus a
+  KNOWN_DEFECTS.md claim that "Playwright reports a passing fixme as a failure, so
+  the suite itself will announce that this document is out of date".
+- Why it was wrong: declaration-level `test.fixme` never executes the body. The
+  "defect-detection suite" would have executed zero assertions on every run — unable
+  to notice the defects being fixed, the defects changing, or its own selectors
+  rotting — and the self-announcing-staleness claim described `test.fail` semantics,
+  not `test.fixme`. A claim about tool behaviour was written without ever being run,
+  exactly what the tone rule forbids.
+- How it was caught: a three-reviewer adversarial pass before the commit; all three
+  flagged it independently, one with the type definitions as evidence. Ironic
+  detail: the file's own header ("a suite that stays green against a broken user is
+  not testing anything") described precisely what the fixme version was.
+- What the fix was: `test.fail()` for both tests — the flow now runs on every suite
+  run, the failure is expected (main run stays green), and an unexpected pass turns
+  the suite red as the staleness alarm. KNOWN_DEFECTS.md was rewritten to describe
+  the real mechanism, and the same review pass also removed dead value-reader
+  methods from three page objects, anchored WEB-030's zero-count guards on a page
+  title, relabelled the journey test to strict Act/Assert sections, corrected the
+  plan's "IDs appear in test titles" claim to match reality (IDs live in comments),
+  and added visual_user as the third broken account KNOWN_DEFECTS had understated.
