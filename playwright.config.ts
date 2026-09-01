@@ -22,8 +22,16 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
 
   // list streams live progress to the terminal; html is the artifact a reviewer opens
-  // afterwards. open: 'never' keeps CI and scripted runs from blocking on a browser.
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // afterwards (open: 'never' keeps scripted runs from blocking on a browser). CI
+  // adds github (inline PR annotations) and json (the step-summary script's input).
+  reporter: process.env.CI
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['github'],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ]
+    : [['list'], ['html', { open: 'never' }]],
 
   use: {
     // Trace only on the retry of a failed test: full debugging detail exactly when a

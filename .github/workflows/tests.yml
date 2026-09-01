@@ -1,0 +1,94 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Nightly: both targets are third-party services we don't control, so a scheduled
+    # run catches contract drift even when nobody is pushing. Odd minute to avoid the
+    # on-the-hour thundering herd.
+    - cron: '17 3 * * *'
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Lint fails the pipeline before a single test runs; typecheck rides along here
+  # because both are seconds-cheap and every later job depends on this one.
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+
+  api-tests:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:api
+      - name: Publish step summary
+        if: always()
+        run: node scripts/ci-step-summary.mjs test-results/results.json "API suite"
+      - name: Upload report, traces, and videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+  web-tests:
+    needs: api-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Read Playwright version for the browser cache key
+        id: playwright-version
+        run: echo "version=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium (cache miss)
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install Chromium system dependencies (cache hit)
+        if: steps.browser-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - run: npm run test:web
+      - name: Publish step summary
+        if: always()
+        run: node scripts/ci-step-summary.mjs test-results/results.json "Web suite"
+      - name: Upload report, traces, and videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14

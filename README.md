@@ -1,5 +1,7 @@
 # Senior QA Take-Home: Playwright Test Framework
 
+[![tests](https://github.com/imsumith01/senior-qa-takehome/actions/workflows/tests.yml/badge.svg)](https://github.com/imsumith01/senior-qa-takehome/actions/workflows/tests.yml)
+
 Automated testing framework covering two targets:
 
 - Web: https://www.saucedemo.com/

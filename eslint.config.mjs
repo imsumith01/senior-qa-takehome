@@ -68,11 +68,18 @@ export default tseslint.config(
     },
   },
 
-  // This config file itself is plain JavaScript outside the TypeScript project, so the
-  // type-aware rules cannot run on it.
+  // Plain-JavaScript files (this config, the CI summary script) sit outside the
+  // TypeScript project, so the type-aware rules cannot run on them — and they run
+  // under Node, whose globals the linter must be told about.
   {
     files: ['**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+      },
+    },
   },
 
   // CLAUDE.md rule 10: web-first assertions only. The plugin catches waitForTimeout,
