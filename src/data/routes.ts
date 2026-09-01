@@ -1,6 +1,8 @@
 // Application routes as observed in discovery. Paths are relative so they resolve
 // against the web project's baseURL.
 
+export const WEB_BASE_URL = 'https://www.saucedemo.com';
+
 export const ROUTE_LOGIN = '/';
 export const ROUTE_INVENTORY = '/inventory.html';
 export const ROUTE_CART = '/cart.html';

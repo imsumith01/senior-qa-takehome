@@ -33,6 +33,11 @@ export class PostsClient {
     return this.request.get('/posts', { params: query });
   }
 
+  // For CORS probing: the same read, announced as coming from a browser origin.
+  async getAllPostsFromOrigin(origin: string): Promise<APIResponse> {
+    return this.request.get('/posts', { headers: { Origin: origin } });
+  }
+
   async createPost(newPost: NewPost): Promise<APIResponse> {
     return this.request.post('/posts', { data: newPost });
   }

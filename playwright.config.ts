@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import { WEB_BASE_URL } from './src/data/routes';
+import { API_BASE_URL } from './src/data/api';
 
 export default defineConfig({
   // Each project narrows to its own folder below; this is the umbrella.
@@ -40,14 +42,14 @@ export default defineConfig({
       testDir: './tests/web',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://www.saucedemo.com',
+        baseURL: WEB_BASE_URL,
       },
     },
     {
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: 'https://jsonplaceholder.typicode.com',
+        baseURL: API_BASE_URL,
       },
     },
   ],
