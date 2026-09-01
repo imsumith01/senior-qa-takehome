@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Local environment
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
